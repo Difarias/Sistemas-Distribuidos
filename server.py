@@ -1,14 +1,18 @@
 import Pyro4
-import sys
+import sys, os, time
 
 @Pyro4.expose
 class ConnectFourGame:
     def __init__(self):
+        self.restart_game()
+
+    def restart_game(self):
         self.board = [[' ' for _ in range(7)] for _ in range(6)]
-        self.current_player = 'X'
+        self.current_player = 'O'  # Jogador local (Jogador 1) começa com 'O'
         self.display_board()
 
     def display_board(self):
+        os.system('cls' if os.name == 'nt' else 'clear')  # Limpa a tela mediante o sistema operacional
         output = ""
         for row in self.board:
             output += "|".join(row) + "\n"
@@ -25,7 +29,8 @@ class ConnectFourGame:
                 if self.check_winner():
                     self.display_board()
                     print(f"Jogador {self.current_player} venceu!")
-                    sys.exit()
+                    time.sleep(3)
+                    self.restart_game()
 
                 self.toggle_player()
                 self.display_board()
@@ -35,7 +40,7 @@ class ConnectFourGame:
     def get_server_move(self):
         while True:
             try:
-                column = int(input("Jogador 1 (O), digite o número da coluna (0-6) para fazer a jogada: "))
+                column = int(input("Jogador 2 (O), digite o número da coluna (0-6) para fazer a jogada: "))
                 success = self.make_move(column)
 
                 if success:
@@ -69,8 +74,13 @@ class ConnectFourGame:
         return False
 
 # Inicializar o servidor
-daemon = Pyro4.Daemon()
-uri = daemon.register(ConnectFourGame)
+ip_address = "192.168.0.104" 
+port=9090
+
+daemon = Pyro4.Daemon(host=ip_address, port=port)
+uri = daemon.register(ConnectFourGame, "connect_four_game")
+
+print("Servidor em Execução...")
 print("URI do servidor:", uri)
 
 # Aguardar por conexões

@@ -1,10 +1,11 @@
 import Pyro4
-import sys
+import sys, os
 
-uri = input("Digite a URI do servidor: ")
+uri = "PYRO:connect_four_game@192.168.0.104:9090"
 game = Pyro4.Proxy(uri)
 
 def display_board():
+    os.system('cls' if os.name == 'nt' else 'clear')  # Limpa a tela mediante o sistema operacional
     print(game.display_board())
 
 def make_move(column):
@@ -19,7 +20,7 @@ while True:
     try:
         display_board()
 
-        column = int(input("Jogador 2 (X), digite o número da coluna (0-6) para fazer a jogada: "))
+        column = int(input("Jogador 1 (X), digite o número da coluna (0-6) para fazer a jogada: "))
         make_move(column)
 
         if game.check_winner():
