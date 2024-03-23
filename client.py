@@ -1,32 +1,40 @@
-import Pyro4
+import Pyro4, os
 
-def main():
-    uri = "PYRO:connect_four_game@192.168.0.104:9090"
-    server = Pyro4.Proxy(uri)
-    player_name = input("Enter your name: ")
-    print(server.register_player(player_name))
+def principal():
+    uri = "PYRO:jogo_quatro_linhas@192.168.0.104:9090"
+    servidor = Pyro4.Proxy(uri)
+    nome_jogador = input("Selecione um caractere para te representar: ")[:1] 
+    print(servidor.registrar_jogador(nome_jogador))
 
-    prev_board = None  # Armazena o estado anterior do tabuleiro
+    tabuleiro_anterior = None  # Armazena o estado anterior do tabuleiro
 
     while True:
-        board, current_player, players = server.get_game_state()
+        tabuleiro, jogador_atual, jogadores = servidor.obter_estado_jogo()
 
         # Verifica se houve uma mudança no tabuleiro
-        if board != prev_board:
-            print(server.display_board())
-            prev_board = board
+        if tabuleiro != tabuleiro_anterior:
+            print(servidor.exibir_tabuleiro())
+            tabuleiro_anterior = tabuleiro
 
-        if players[current_player] == player_name:
-            column = int(input("Enter the column number to drop your disc (1-7): "))
-            message = server.play(column, player_name)
+        if jogadores[jogador_atual] == nome_jogador:
+            while True:
+                try:
+                    coluna = int(input("Digite o número da coluna para soltar o seu disco (1-7): "))
+                    if coluna < 1 or coluna > 7:
+                        raise ValueError
+                    break
+                except ValueError:
+                    print("Selecione uma entrada válida.")
+
+            mensagem = servidor.jogar(coluna, nome_jogador)
             
-            if "wins" in message:
-                print(server.display_board())
-                print(message)
+            if "venceu" in mensagem:
+                print(servidor.exibir_tabuleiro())
+                print(mensagem)
                 break
         else:
-            if players[1 - current_player] != player_name:
-                print("Waiting for opponent's move...")
+            if jogadores[1 - jogador_atual] != nome_jogador:
+                print("Aguardando a jogada do oponente...")
 
 if __name__ == "__main__":
-    main()
+    principal()

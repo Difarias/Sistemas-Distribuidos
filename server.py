@@ -3,76 +3,75 @@ import Pyro4, os
 @Pyro4.expose
 class QuatroLinhas:
     def __init__(self):
-        self.board = [[' ']*7 for _ in range(6)]
-        self.players = [None, None]
-        self.current_player = 0
+        self.tabuleiro = [[' ']*7 for _ in range(6)]
+        self.jogadores = [None, None]
+        self.jogador_atual = 0
 
-    def display_board(self):
+    def exibir_tabuleiro(self):     
         os.system('cls' if os.name == 'nt' else 'clear') 
-        result = ""
-        result += "\n  1   2   3   4   5   6   7\n"
-        result += "+---+---+---+---+---+---+---+\n"
-        for row in self.board:
-            result += "| " + " | ".join(row) + " |\n"
-            result += "+---+---+---+---+---+---+---+\n"
-        return result
+        resultado = ""
+        resultado += "\n  1   2   3   4   5   6   7\n"
+        for linha in self.tabuleiro:
+            resultado += "| " + " | ".join(linha) + " |\n"
+            resultado += "+---+---+---+---+---+---+---+\n"
+        return resultado
 
-    def make_move(self, column, player):
-        column -= 1
-        for row in range(5, -1, -1):
-            if self.board[row][column] == ' ':
-                self.board[row][column] = player
+    def fazer_jogada(self, coluna, jogador):
+        os.system('cls' if os.name == 'nt' else 'clear') 
+        coluna -= 1
+        for linha in range(5, -1, -1):
+            if self.tabuleiro[linha][coluna] == ' ':
+                self.tabuleiro[linha][coluna] = jogador
                 return True
         return False
 
-    def check_winner(self, player):
-        for row in range(6):
-            for col in range(4):
-                if self.board[row][col] == self.board[row][col+1] == self.board[row][col+2] == self.board[row][col+3] == player:
+    def verificar_vencedor(self, jogador):
+        for linha in range(6):
+            for coluna in range(4):
+                if self.tabuleiro[linha][coluna] == self.tabuleiro[linha][coluna+1] == self.tabuleiro[linha][coluna+2] == self.tabuleiro[linha][coluna+3] == jogador:
                     return True
 
-        for row in range(3):
-            for col in range(7):
-                if self.board[row][col] == self.board[row+1][col] == self.board[row+2][col] == self.board[row+3][col] == player:
+        for linha in range(3):
+            for coluna in range(7):
+                if self.tabuleiro[linha][coluna] == self.tabuleiro[linha+1][coluna] == self.tabuleiro[linha+2][coluna] == self.tabuleiro[linha+3][coluna] == jogador:
                     return True
 
-        for row in range(3):
-            for col in range(4):
-                if self.board[row][col] == self.board[row+1][col+1] == self.board[row+2][col+2] == self.board[row+3][col+3] == player:
+        for linha in range(3):
+            for coluna in range(4):
+                if self.tabuleiro[linha][coluna] == self.tabuleiro[linha+1][coluna+1] == self.tabuleiro[linha+2][coluna+2] == self.tabuleiro[linha+3][coluna+3] == jogador:
                     return True
 
-                if self.board[row][col+3] == self.board[row+1][col+2] == self.board[row+2][col+1] == self.board[row+3][col] == player:
+                if self.tabuleiro[linha][coluna+3] == self.tabuleiro[linha+1][coluna+2] == self.tabuleiro[linha+2][coluna+1] == self.tabuleiro[linha+3][coluna] == jogador:
                     return True
 
         return False
 
-    def play(self, column, player):
-        if self.make_move(column, player):
-            if self.check_winner(player):
-                return f"Player {player} wins!"
-            self.current_player = 1 - self.current_player
-            return "Next player's turn."
+    def jogar(self, coluna, jogador):
+        if self.fazer_jogada(coluna, jogador):
+            if self.verificar_vencedor(jogador):
+                return f"O jogador {jogador} venceu!"
+            self.jogador_atual = 1 - self.jogador_atual
+            return "É a vez do próximo jogador."
         else:
-            return "Column is full. Choose another column."
+            return "A coluna está cheia. Escolha outra coluna."
 
-    def register_player(self, player_name):
-        for i in range(len(self.players)):
-            if self.players[i] is None:
-                self.players[i] = player_name
-                return f"Player {i+1} connected as {player_name}."
-        return "All player slots are full. Cannot connect."
+    def registrar_jogador(self, nome_jogador):
+        for i in range(len(self.jogadores)):
+            if self.jogadores[i] is None:
+                self.jogadores[i] = nome_jogador
+                return f"Jogador {i+1} conectado como {nome_jogador}."
+        return "Todos os slots de jogadores estão cheios. Não é possível conectar."
 
-    def get_game_state(self):
-        return self.board, self.current_player, self.players
-
+    def obter_estado_jogo(self):
+        return self.tabuleiro, self.jogador_atual, self.jogadores
 
 def main():
-    ip_address = "192.168.0.104" 
-    port = 9090
+    endereco_ip = "192.168.0.104" 
+    porta = 9090
 
-    daemon = Pyro4.Daemon(host=ip_address, port=port)
-    connect_four_game = QuatroLinhas()
-    uri = daemon.register(connect_four_game, "connect_four_game")
+    daemon = Pyro4.Daemon(host=endereco_ip, port=porta)
+    jogo_quatro_linhas = QuatroLinhas()
+    uri = daemon.register(jogo_quatro_linhas, "jogo_quatro_linhas")
 
     print("Servidor em Execução...")
     print("URI do servidor:", uri)
