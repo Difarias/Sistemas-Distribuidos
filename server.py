@@ -6,6 +6,7 @@ class QuatroLinhas:
         self.tabuleiro = [[' ']*7 for _ in range(6)]
         self.jogadores = [None, None]
         self.jogador_atual = 0
+        self.controladorJogo   = True
 
     def exibir_tabuleiro(self):     
         os.system('cls' if os.name == 'nt' else 'clear') 
@@ -15,6 +16,9 @@ class QuatroLinhas:
             resultado += "| " + " | ".join(linha) + " |\n"
             resultado += "+---+---+---+---+---+---+---+\n"
         return resultado
+    
+    def retorna_estado_atual(self):
+        return self.controladorJogo
 
     def fazer_jogada(self, coluna, jogador):
         os.system('cls' if os.name == 'nt' else 'clear') 
@@ -49,6 +53,7 @@ class QuatroLinhas:
     def jogar(self, coluna, jogador):
         if self.fazer_jogada(coluna, jogador):
             if self.verificar_vencedor(jogador):
+                self.controladorJogo = False
                 return f"O jogador {jogador} venceu!"
             self.jogador_atual = 1 - self.jogador_atual
             return "É a vez do próximo jogador."
