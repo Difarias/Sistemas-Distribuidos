@@ -37,7 +37,7 @@ def main():
                 except ValueError:
                     print("Selecione uma entrada válida.")
 
-            #Faz a jogada no servidor e verifica se o jogador venceu
+            # Faz a jogada no servidor e verifica se o jogador venceu
             mensagem = servidor.jogar(coluna, nome_jogador)
             
             if "venceu" in mensagem:

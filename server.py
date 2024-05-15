@@ -73,7 +73,7 @@ class QuatroLinhas:
                     self.registrar_acao_jogador(jogador, f'venceu na diagonal descendente') 
                     return True
         
-        #Retorna False se não houver um vencedor
+        # Retorna False se não houver um vencedor
         return False
 
     def jogar(self, coluna, jogador):
